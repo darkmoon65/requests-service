@@ -1,7 +1,10 @@
 package com.crediya.requests.api;
 
+import com.crediya.requests.api.dto.CreateSolicitudeDto;
+import com.crediya.requests.api.mapper.SolicitudeDtoMapper;
 import com.crediya.requests.model.solicitude.Solicitude;
 import com.crediya.requests.usecase.solicitude.SolicitudeUseCase;
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +13,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -30,7 +36,7 @@ public class Handler {
         return serverRequest.bodyToMono(CreateSolicitudeDto.class)
                 .doOnNext(dto -> log.info("Received solicitude: {}", dto))
                 .flatMap(this::validate)
-                .map(solicitudeMapper::toDomain) // DTO → Domain
+                .map(solicitudeMapper::toResponse)
                 .flatMap(solicitudeUseCase::saveSolicitude)
                 .flatMap(saved -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
