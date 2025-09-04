@@ -1,6 +1,5 @@
 package com.crediya.requests.r2dbc.entity;
 
-
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
@@ -12,26 +11,28 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Getter
 @Setter
-@Table("solicitude")
-public class SolicitudeEntity {
+@Table("loan_type")
+public class LoanTypeEntity {
 
     @Id
-    private String id;
+    private Integer id;
 
     @NonNull
-    private BigDecimal amount;
+    private String name;
 
     @NonNull
-    private Integer term;
+    @Column("min_amount")
+    private BigDecimal minAmount;
 
     @NonNull
-    private String email;
+    @Column("max_amount")
+    private BigDecimal maxAmount;
 
     @NonNull
-    @Column("state_id")
-    private Integer stateId;
+    @Column("interest_rate")
+    private BigDecimal interestRate;
 
     @NonNull
-    @Column("loan_type_id")
-    private Integer loanTypeId;
+    @Column("auto_validation")
+    private Boolean autoValidation;
 }
