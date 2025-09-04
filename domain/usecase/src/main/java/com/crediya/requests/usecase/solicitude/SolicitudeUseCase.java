@@ -4,7 +4,6 @@ import com.crediya.requests.model.loantype.gateways.LoanTypeRepository;
 import com.crediya.requests.model.solicitude.Solicitude;
 import com.crediya.requests.model.solicitude.gateways.SolicitudeRepository;
 import lombok.RequiredArgsConstructor;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 
@@ -23,9 +22,5 @@ public class SolicitudeUseCase {
                     solicitude.setStateId(1);
                     return solicitudeRepository.saveSolicitude(solicitude);
                 });
-    }
-
-    public Flux<Solicitude> getAllSolicitudes() {
-        return solicitudeRepository.getAllSolicitudes();
     }
 }

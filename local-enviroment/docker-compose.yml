@@ -1,12 +1,12 @@
-name: crediya-csversion
+name: crediya-requests-cs
 
 services:
   postgres-db:
     image: postgres:16.8
-    container_name: crediya-db
+    container_name: crediya-db-requests
     restart: always
     environment:
       POSTGRES_PASSWORD: pass123
       POSTGRES_DB: requests_db
     ports:
-      - "5432:5432"
+      - "5433:5432"
