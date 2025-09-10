@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8081
 spring:
   application:
     name: "requests-service"
@@ -31,3 +31,5 @@ adapters:
     schema: "public"
     username: "postgres"
     password: "pass123"
+jwt:
+  secret: bXludWV2YWtleXN1cGVyc2VndXJhY3JlZGl5YWRvdGNvbXByYWdt

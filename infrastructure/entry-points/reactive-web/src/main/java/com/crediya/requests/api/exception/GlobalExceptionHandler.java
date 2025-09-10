@@ -28,4 +28,13 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest().body(error);
     }
+
+    @ExceptionHandler(TokenValidationException.class)
+    public ResponseEntity<Map<String, Object>> handleTokenValidationException(TokenValidationException ex) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("datetime", LocalDateTime.now());
+        error.put("message", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
 }
