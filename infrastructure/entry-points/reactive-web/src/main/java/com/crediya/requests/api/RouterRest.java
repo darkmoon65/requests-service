@@ -35,6 +35,14 @@ public class RouterRest {
                             summary = "Registrar nueva solicitud",
                             description = "Recibe un objeto Solicitude y guarda la solicitud.",
                             tags = {"Solicitudes"},
+                            parameters = {
+                                    @io.swagger.v3.oas.annotations.Parameter(
+                                            name = "Authorization",
+                                            in = io.swagger.v3.oas.annotations.enums.ParameterIn.HEADER,
+                                            required = true,
+                                            description = "Token JWT, ejemplo: Bearer <token>"
+                                    )
+                            },
                             requestBody = @RequestBody(
                                     required = true,
                                     description = "Datos de la solicitud a registrar",
