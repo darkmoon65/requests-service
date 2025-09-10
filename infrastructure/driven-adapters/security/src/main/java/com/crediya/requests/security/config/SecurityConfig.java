@@ -24,10 +24,18 @@ public class SecurityConfig {
         this.securityContextRepository = securityContextRepository;
     }
 
+    private static final String[] ValidList = {
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+    };
+
     @Bean
     public SecurityWebFilterChain filterChain(ServerHttpSecurity http, JwtFilter jwtFilter){
         return http.csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .authorizeExchange(exchanges -> exchanges
+                .authorizeExchange(exchangeSpec
+                        -> exchangeSpec
+                        .pathMatchers(ValidList).permitAll()
                         .anyExchange().authenticated()
                 )
                 .exceptionHandling(

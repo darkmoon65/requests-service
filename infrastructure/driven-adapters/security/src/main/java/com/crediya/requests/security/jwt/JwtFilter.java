@@ -16,9 +16,8 @@ import java.util.List;
 public class JwtFilter implements WebFilter {
 
     private static final List<String> WHITELIST = Arrays.asList(
-            "/api/v1/auth/**",
-            "/v3/api-docs/**",
-            "/swagger-ui/**",
+            "/v3/api-docs",
+            "/swagger-ui",
             "/swagger-ui.html"
     );
     @Override
@@ -31,7 +30,7 @@ public class JwtFilter implements WebFilter {
             return chain.filter(exchange);
         }
 
-        String auth =request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        String auth = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if( auth == null || !auth.startsWith("Bearer ")){
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
