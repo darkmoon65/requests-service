@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springdoc.core.annotations.RouterOperation;
 import org.springdoc.core.annotations.RouterOperations;
 import org.springframework.context.annotation.Bean;
@@ -35,14 +36,7 @@ public class RouterRest {
                             summary = "Registrar nueva solicitud",
                             description = "Recibe un objeto Solicitude y guarda la solicitud.",
                             tags = {"Solicitudes"},
-                            parameters = {
-                                    @io.swagger.v3.oas.annotations.Parameter(
-                                            name = "Authorization",
-                                            in = io.swagger.v3.oas.annotations.enums.ParameterIn.HEADER,
-                                            required = true,
-                                            description = "Token JWT, ejemplo: Bearer <token>"
-                                    )
-                            },
+                            security = @SecurityRequirement(name = "bearerAuth"),
                             requestBody = @RequestBody(
                                     required = true,
                                     description = "Datos de la solicitud a registrar",
@@ -77,18 +71,13 @@ public class RouterRest {
                             summary = "Obtener solicitudes pendientes",
                             description = "Obtiene la lista de solicitudes pendientes con soporte para paginación y filtros opcionales.",
                             tags = {"Solicitudes"},
+                            security = @SecurityRequirement(name = "bearerAuth"),
                             parameters = {
                                     @io.swagger.v3.oas.annotations.Parameter(
-                                            name = "Authorization",
-                                            in = io.swagger.v3.oas.annotations.enums.ParameterIn.HEADER,
-                                            required = true,
-                                            description = "Token JWT, ejemplo: Bearer <token>"
-                                    ),
-                                    @io.swagger.v3.oas.annotations.Parameter(
                                             name = "page",
-                                            description = "Número de página (empezando desde 0)",
+                                            description = "Número de página (empezando desde 1)",
                                             required = false,
-                                            example = "0"
+                                            example = "1"
                                     ),
                                     @io.swagger.v3.oas.annotations.Parameter(
                                             name = "size",
@@ -120,19 +109,21 @@ public class RouterRest {
                                                         {
                                                           "content": [
                                                             {
-                                                              "id": "06453344-0388-4ee0-af08-393200f3145d",
+                                                              "id": "1",
                                                               "amount": 1500.00,
                                                               "term": 12,
                                                               "email": "usuario@dominio.com",
-                                                              "stateId": 1,
-                                                              "loanTypeId": 2
+                                                              "stateName": "Pendiente",
+                                                              "loanTypeName": "Prestamo familiar",
+                                                              "nameUser": "pepe",
+                                                              "baseSalary": 8000.00
                                                             }
                                                           ],
-                                                          "page": 0,
-                                                          "size": 5,
-                                                          "totalElements": 1,
-                                                          "totalPages": 1,
-                                                          "hasNext": false,
+                                                          "page": 1,
+                                                          "size": 2,
+                                                          "totalElements": 5,
+                                                          "totalPages": 3,
+                                                          "hasNext": true,
                                                           "hasPrevious": false
                                                         }
                                                         """

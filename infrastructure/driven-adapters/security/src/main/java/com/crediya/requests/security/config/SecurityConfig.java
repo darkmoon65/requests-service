@@ -27,8 +27,7 @@ public class SecurityConfig {
     private static final String[] ValidList = {
             "/v3/api-docs/**",
             "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/api/v1/solicitudes"
+            "/swagger-ui.html"
     };
 
     @Bean

@@ -16,6 +16,6 @@ public class SolicitudeResponseDto {
     private String email;
     private String stateName;
     private String loanTypeName;
-    private String nombreUsuario;
-    private BigDecimal salarioBase;
+    private String nameUser;
+    private BigDecimal baseSalary;
 }

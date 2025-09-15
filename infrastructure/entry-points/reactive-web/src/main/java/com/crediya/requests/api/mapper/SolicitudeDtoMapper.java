@@ -13,5 +13,4 @@ public interface SolicitudeDtoMapper {
     Solicitude toResponse(CreateSolicitudeDto dto);
 
     List<Solicitude> toResponseList(List<Solicitude> solicitude);
-
 }

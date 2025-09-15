@@ -16,7 +16,7 @@ public interface SolicitudeReactiveRepository extends ReactiveCrudRepository<Sol
        FROM solicitude s
        INNER JOIN state st ON s.state_id = st.id
        INNER JOIN loan_type lt ON s.loan_type_id = lt.id
-       WHERE (s.loan_type_id = :loanTypeId) 
+       WHERE (s.loan_type_id = :loanTypeId)
         AND (s.state_id = :stateId)
        ORDER BY s.id DESC
        LIMIT :limit OFFSET :offset
