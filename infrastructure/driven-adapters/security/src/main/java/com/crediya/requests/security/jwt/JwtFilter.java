@@ -18,7 +18,8 @@ public class JwtFilter implements WebFilter {
     private static final List<String> WHITELIST = Arrays.asList(
             "/v3/api-docs",
             "/swagger-ui",
-            "/swagger-ui.html"
+            "/swagger-ui.html",
+            "/api/v1/solicitudes"
     );
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {

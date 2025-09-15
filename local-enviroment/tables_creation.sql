@@ -15,7 +15,7 @@ CREATE TABLE loan_type (
 );
 
 CREATE TABLE solicitude (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id SERIAL PRIMARY KEY,
     amount NUMERIC(15,2) NOT NULL,
     term INTEGER NOT NULL,
     email VARCHAR(255) NOT NULL,
