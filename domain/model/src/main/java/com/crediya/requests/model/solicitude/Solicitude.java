@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Solicitude {
-    private String id;
+    private Integer id;
     private BigDecimal amount;
     private Integer term;
     private String email;

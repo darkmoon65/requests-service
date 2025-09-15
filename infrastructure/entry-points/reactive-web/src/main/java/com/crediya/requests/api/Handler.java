@@ -1,8 +1,12 @@
 package com.crediya.requests.api;
 
+import com.crediya.requests.api.client.ExternalClient;
 import com.crediya.requests.api.dto.CreateSolicitudeDto;
 import com.crediya.requests.api.exception.TokenValidationException;
 import com.crediya.requests.api.mapper.SolicitudeDtoMapper;
+import com.crediya.requests.api.mapper.SolicitudeGetMapper;
+import com.crediya.requests.api.util.AuthUtils;
+import com.crediya.requests.api.util.PaginationUtils;
 import com.crediya.requests.api.validation.SolicitudeValidator;
 import com.crediya.requests.usecase.solicitude.SolicitudeUseCase;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +25,12 @@ import reactor.core.publisher.Mono;
 public class Handler {
 
     private final SolicitudeUseCase solicitudeUseCase;
-    private final SolicitudeDtoMapper solicitudeMapper;
+    private final SolicitudeDtoMapper solicitudeCreateMapper;
     private final SolicitudeValidator solicitudeValidator;
+    private final SolicitudeGetMapper solicitudeGetMapper;
+    private final PaginationUtils paginationUtils;
+    private final AuthUtils authUtils;
+    private final ExternalClient externalClient;
 
     @PreAuthorize("hasAuthority('APPLICANT')")
     public Mono<ServerResponse> listenCreateSolicitude(ServerRequest serverRequest) {
@@ -39,10 +47,35 @@ public class Handler {
                 )
                 .doOnNext(dto -> log.info("Received solicitude: {}", dto))
                 .flatMap(solicitudeValidator::validate)
-                .map(solicitudeMapper::toResponse)
+                .map(solicitudeCreateMapper::toResponse)
                 .flatMap(solicitudeUseCase::saveSolicitude)
                 .flatMap(saved -> ServerResponse.status(201)
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(saved));
+    }
+
+    public Mono<ServerResponse> listenGetPendingSolicitudes(ServerRequest serverRequest) {
+        int page = Integer.parseInt(serverRequest.queryParam("page").orElse("1"));
+        int size = Integer.parseInt(serverRequest.queryParam("size").orElse("10"));
+        int loanTypeId = Integer.parseInt(serverRequest.queryParam("loanTypeId").orElse("3"));
+        int stateId = Integer.parseInt(serverRequest.queryParam("stateId").orElse("1"));
+
+        return authUtils.extractToken(serverRequest)
+                .flatMapMany(token -> solicitudeUseCase.getPendingSolicitudes(loanTypeId, stateId, page, size)
+                .flatMap(solicitude ->
+                        externalClient.getUserInfo(solicitude.getEmail(), token)
+                                .doOnNext(userInfoDto ->  log.info("User Info Dto {}", userInfoDto))
+                                .map(externalInfo -> solicitudeGetMapper.toDto(solicitude, externalInfo))
+                ))
+                .collectList()
+                .flatMap(dtoList ->
+                        solicitudeUseCase.countPendingSolicitudes(loanTypeId, stateId)
+                                .map(totalElements -> paginationUtils.buildPaginatedResponse(dtoList, page, size, totalElements))
+                )
+                .flatMap(response ->
+                        ServerResponse.ok()
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue(response)
+                );
     }
 }
