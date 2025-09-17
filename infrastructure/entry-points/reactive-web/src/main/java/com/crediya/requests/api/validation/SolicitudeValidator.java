@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 public class SolicitudeValidator {
     private final Validator validator;
 
-    public Mono<CreateSolicitudeDto> validate(CreateSolicitudeDto user) {
-        Set<ConstraintViolation<CreateSolicitudeDto>> violations = validator.validate(user);
+    public <T> Mono<T> validate(T dto) {
+        Set<ConstraintViolation<T>> violations = validator.validate(dto);
 
         if (!violations.isEmpty()) {
             Map<String, String> errors = violations.stream().collect(
@@ -31,6 +31,6 @@ public class SolicitudeValidator {
             return Mono.error(new SolicitudeValidationException("Errores de validación", errors));
         }
 
-        return Mono.just(user);
+        return Mono.just(dto);
     }
 }

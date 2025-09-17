@@ -2,6 +2,7 @@ package com.crediya.requests.api;
 
 import com.crediya.requests.api.client.ExternalClient;
 import com.crediya.requests.api.dto.CreateSolicitudeDto;
+import com.crediya.requests.api.dto.UpdateSolicitudeDto;
 import com.crediya.requests.api.exception.TokenValidationException;
 import com.crediya.requests.api.mapper.SolicitudeDtoMapper;
 import com.crediya.requests.api.mapper.SolicitudeGetMapper;
@@ -50,6 +51,18 @@ public class Handler {
                 .map(solicitudeCreateMapper::toResponse)
                 .flatMap(solicitudeUseCase::saveSolicitude)
                 .flatMap(saved -> ServerResponse.status(201)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(saved));
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Mono<ServerResponse> listenUpdateSolicitude(ServerRequest serverRequest){
+        return serverRequest.bodyToMono(UpdateSolicitudeDto.class)
+                .doOnNext(dto -> log.info("Received update solicitude: {}", dto))
+                .flatMap(solicitudeValidator::validate)
+                .map(solicitudeCreateMapper::toEntity)
+                .flatMap(solicitudeUseCase::updateSolicitude)
+                .flatMap(saved -> ServerResponse.status(200)
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(saved));
     }

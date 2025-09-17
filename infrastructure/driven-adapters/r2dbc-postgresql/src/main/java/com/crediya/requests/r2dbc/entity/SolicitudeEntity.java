@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 public class SolicitudeEntity {
 
     @Id
-    private String id;
+    private Integer id;
 
     @NonNull
     private BigDecimal amount;

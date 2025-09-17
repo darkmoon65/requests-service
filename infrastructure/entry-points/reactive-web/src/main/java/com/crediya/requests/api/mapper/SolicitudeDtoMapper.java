@@ -1,6 +1,7 @@
 package com.crediya.requests.api.mapper;
 
 import com.crediya.requests.api.dto.CreateSolicitudeDto;
+import com.crediya.requests.api.dto.UpdateSolicitudeDto;
 import com.crediya.requests.model.solicitude.Solicitude;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -13,4 +14,6 @@ public interface SolicitudeDtoMapper {
     Solicitude toResponse(CreateSolicitudeDto dto);
 
     List<Solicitude> toResponseList(List<Solicitude> solicitude);
+
+    Solicitude toEntity(UpdateSolicitudeDto dto);
 }

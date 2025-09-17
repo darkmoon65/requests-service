@@ -11,4 +11,6 @@ public interface SolicitudeRepository {
     Flux<SolicitudeWithNamesDto> findPendingSolicitudes(int loanTypeId, int stateId, int limit, int offset);
 
     Mono<Long> countByStateId(int loanTypeId, int stateId);
+
+    Mono<Solicitude> getById(Integer id);
 }

@@ -34,4 +34,15 @@ public class SolicitudeUseCase {
     public Mono<Long> countPendingSolicitudes(int loanTypeId, int stateId) {
         return solicitudeRepository.countByStateId(loanTypeId, stateId);
     }
+
+    public Mono<Solicitude> updateSolicitude(Solicitude solicitude) {
+            return solicitudeRepository.getById(solicitude.getId())
+                    .switchIfEmpty(Mono.error(new IllegalArgumentException("No existe Solicitud con ese id")))
+                    .map(existSol -> {
+                        existSol.setStateId(solicitude.getStateId());
+                        return existSol;
+                    })
+                    .flatMap(solicitudeRepository::saveSolicitude);
+
+    }
 }
