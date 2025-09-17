@@ -11,7 +11,7 @@ public class WebClientConfig {
     @Bean
     public WebClient externalApiWebClient() {
         return WebClient.builder()
-                .baseUrl("http://localhost:8080/api/v1")
+                .baseUrl("http://auth-service:8080/api/v1")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }
