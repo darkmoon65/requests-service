@@ -4,7 +4,7 @@ services:
   postgres-db:
     image: postgres:16.8
     container_name: crediya-db-requests
-    restart: always
+    restart: no
     environment:
       POSTGRES_PASSWORD: pass123
       POSTGRES_DB: requests_db
