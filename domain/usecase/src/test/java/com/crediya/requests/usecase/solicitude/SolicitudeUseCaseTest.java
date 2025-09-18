@@ -4,6 +4,7 @@ import com.crediya.requests.model.loantype.gateways.LoanTypeRepository;
 import com.crediya.requests.model.solicitude.Solicitude;
 import com.crediya.requests.model.solicitude.dto.SolicitudeWithNamesDto;
 import com.crediya.requests.model.solicitude.gateways.SolicitudeRepository;
+import com.crediya.requests.model.solicitude.gateways.SolicitudeStatusNotifier;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,6 +31,9 @@ public class SolicitudeUseCaseTest {
 
     @Mock
     LoanTypeRepository loanTypeRepository;
+
+    @Mock
+    SolicitudeStatusNotifier solicitudeStatusNotifier;
 
     @Test
     void saveSolicitude_ok() {
@@ -126,5 +130,46 @@ public class SolicitudeUseCaseTest {
 
         StepVerifier.create(solicitudeUseCase.countPendingSolicitudes(loanTypeId, stateId))
                 .verifyComplete();
+    }
+
+    @Test
+    void updateSolicitude_ok() {
+        Solicitude existing = new Solicitude();
+        existing.setId(1);
+        existing.setStateId(1);
+
+        Solicitude updateRequest = new Solicitude();
+        updateRequest.setId(1);
+        updateRequest.setStateId(2);
+
+        Solicitude updated = new Solicitude();
+        updated.setId(1);
+        updated.setStateId(2);
+
+        when(solicitudeRepository.getById(eq(1))).thenReturn(Mono.just(existing));
+        when(solicitudeRepository.saveSolicitude(any(Solicitude.class))).thenReturn(Mono.just(updated));
+        when(solicitudeStatusNotifier.notifyStatusChanged(any(Solicitude.class))).thenReturn(Mono.empty());
+
+        StepVerifier.create(solicitudeUseCase.updateSolicitude(updateRequest))
+                .assertNext(saved -> {
+                    assertThat(saved.getId()).isEqualTo(1);
+                    assertThat(saved.getStateId()).isEqualTo(2);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void updateSolicitude_notFound() {
+        Solicitude updateRequest = new Solicitude();
+        updateRequest.setId(777);
+        updateRequest.setStateId(2);
+
+        when(solicitudeRepository.getById(eq(777))).thenReturn(Mono.empty());
+
+        StepVerifier.create(solicitudeUseCase.updateSolicitude(updateRequest))
+                .expectErrorMatches(error ->
+                        error instanceof IllegalArgumentException &&
+                                error.getMessage().equals("No existe Solicitud con ese id"))
+                .verify();
     }
 }

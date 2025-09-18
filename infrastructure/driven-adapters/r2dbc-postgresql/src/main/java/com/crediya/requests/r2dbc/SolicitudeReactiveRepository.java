@@ -8,7 +8,7 @@ import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface SolicitudeReactiveRepository extends ReactiveCrudRepository<SolicitudeEntity, String>, ReactiveQueryByExampleExecutor<SolicitudeEntity> {
+public interface SolicitudeReactiveRepository extends ReactiveCrudRepository<SolicitudeEntity, Integer>, ReactiveQueryByExampleExecutor<SolicitudeEntity> {
     @Query("""
     SELECT s.id, s.amount, s.term, s.email,
               st.name AS state_name,

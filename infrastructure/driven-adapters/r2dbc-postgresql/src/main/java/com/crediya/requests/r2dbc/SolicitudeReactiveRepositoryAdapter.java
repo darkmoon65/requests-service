@@ -15,10 +15,15 @@ import reactor.core.publisher.Mono;
 @Repository
 public class SolicitudeReactiveRepositoryAdapter extends ReactiveAdapterOperations<
     Solicitude,SolicitudeEntity,
-    String,SolicitudeReactiveRepository
+    Integer,SolicitudeReactiveRepository
 > implements SolicitudeRepository {
     public SolicitudeReactiveRepositoryAdapter(SolicitudeReactiveRepository repository, ObjectMapper mapper) {
         super(repository, mapper, d -> mapper.map(d, Solicitude.class));
+    }
+
+    @Override
+    public Mono<Solicitude> getById(Integer id){
+        return super.findById(id);
     }
 
     @Override

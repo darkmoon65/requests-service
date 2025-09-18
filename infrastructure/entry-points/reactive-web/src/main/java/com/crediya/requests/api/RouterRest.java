@@ -1,6 +1,7 @@
 package com.crediya.requests.api;
 
 import com.crediya.requests.api.dto.CreateSolicitudeDto;
+import com.crediya.requests.api.dto.UpdateSolicitudeDto;
 import com.crediya.requests.api.exception.ErrorResponse;
 import com.crediya.requests.model.solicitude.Solicitude;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,8 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
-import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
+import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Configuration
@@ -141,10 +141,41 @@ public class RouterRest {
                                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
                                     )
                             }
-                    ))
+                    )),
+            @RouterOperation(
+                    path = "/api/v1/solicitud",
+                    method = RequestMethod.PATCH,
+                    beanClass = Handler.class,
+                    beanMethod = "listenUpdateSolicitude",
+                    operation = @Operation(
+                            operationId = "listenUpdateSolicitude",
+                            summary = "Actualizar estado de solicitud",
+                            description = "Recibe un objeto y actualiza el estado de solicitud.",
+                            tags = {"Solicitudes"},
+                            security = @SecurityRequirement(name = "bearerAuth"),
+                            requestBody = @RequestBody(
+                                    required = true,
+                                    description = "Datos de la solicitud a actualizar",
+                                    content = @Content(schema = @Schema(implementation = UpdateSolicitudeDto.class))
+                            ),
+                            responses = {
+                                    @ApiResponse(
+                                            responseCode = "200",
+                                            description = "Estado de solicitud actualizado correctamente",
+                                            content = @Content(schema = @Schema(implementation = Solicitude.class))
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "400",
+                                            description = "Error de validación",
+                                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+                                    ),
+                            }
+                    )
+            )
     })
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
         return route(POST("/api/v1/solicitud"), handler::listenCreateSolicitude)
-                .andRoute(GET("/api/v1/solicitudes"), handler::listenGetPendingSolicitudes);
+                .andRoute(GET("/api/v1/solicitudes"), handler::listenGetPendingSolicitudes)
+                .andRoute(PATCH("/api/v1/solicitud"), handler::listenUpdateSolicitude);
     }
 }
