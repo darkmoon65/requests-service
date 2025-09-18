@@ -4,6 +4,7 @@ import com.crediya.requests.model.loantype.gateways.LoanTypeRepository;
 import com.crediya.requests.model.solicitude.Solicitude;
 import com.crediya.requests.model.solicitude.dto.SolicitudeWithNamesDto;
 import com.crediya.requests.model.solicitude.gateways.SolicitudeRepository;
+import com.crediya.requests.model.solicitude.gateways.SolicitudeStatusNotifier;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -13,6 +14,7 @@ import reactor.core.publisher.Mono;
 public class SolicitudeUseCase {
     private final SolicitudeRepository solicitudeRepository;
     private final LoanTypeRepository loanTypeRepository;
+    private final SolicitudeStatusNotifier solicitudeStatusNotifier;
 
     public Mono<Solicitude> saveSolicitude(Solicitude solicitude) {
         return loanTypeRepository.existsById(solicitude.getLoanTypeId())
@@ -42,7 +44,8 @@ public class SolicitudeUseCase {
                         existSol.setStateId(solicitude.getStateId());
                         return existSol;
                     })
-                    .flatMap(solicitudeRepository::saveSolicitude);
-
+                    .flatMap(solicitudeRepository::saveSolicitude)
+                    .flatMap(saved -> solicitudeStatusNotifier.notifyStatusChanged(saved)
+                            .thenReturn(saved));
     }
 }
