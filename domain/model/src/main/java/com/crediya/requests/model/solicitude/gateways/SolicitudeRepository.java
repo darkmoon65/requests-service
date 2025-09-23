@@ -13,4 +13,6 @@ public interface SolicitudeRepository {
     Mono<Long> countByStateId(int loanTypeId, int stateId);
 
     Mono<Solicitude> getById(Integer id);
+
+    Flux<Solicitude> findAllApprovedLoansByEmail(String email);
 }

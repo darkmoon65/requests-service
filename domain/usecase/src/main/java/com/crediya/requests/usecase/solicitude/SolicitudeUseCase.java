@@ -2,12 +2,14 @@ package com.crediya.requests.usecase.solicitude;
 
 import com.crediya.requests.model.loantype.gateways.LoanTypeRepository;
 import com.crediya.requests.model.solicitude.Solicitude;
-import com.crediya.requests.model.solicitude.dto.SolicitudeWithNamesDto;
+import com.crediya.requests.model.solicitude.dto.*;
 import com.crediya.requests.model.solicitude.gateways.SolicitudeRepository;
 import com.crediya.requests.model.solicitude.gateways.SolicitudeStatusNotifier;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.math.BigDecimal;
 
 
 @RequiredArgsConstructor
@@ -48,4 +50,40 @@ public class SolicitudeUseCase {
                     .flatMap(saved -> solicitudeStatusNotifier.notifyStatusChanged(saved)
                             .thenReturn(saved));
     }
+
+    public Mono<Void> processLoanEvaluation(Solicitude solicitude) {
+        return loanTypeRepository.findInterestRateById(solicitude.getLoanTypeId())
+                .flatMap(loanTyoe ->
+                        loanTypeRepository.hasAutomaticValidation(solicitude.getLoanTypeId())
+                                .flatMap(hasValidation -> {
+                                    if (Boolean.TRUE.equals(hasValidation)) {
+                                        return solicitudeRepository.findAllApprovedLoansByEmail(solicitude.getEmail())
+                                                .collectList()
+                                                .flatMap(approvedLoansList -> {
+                                                    var userConsumer = new UserConsumer(
+                                                            BigDecimal.valueOf(5000)
+                                                    );
+
+                                                    var newLoan = new LoanDetails(
+                                                            solicitude.getAmount(),
+                                                            solicitude.getTerm()
+                                                    );
+
+                                                    var message = new CalculateDebtMessage(
+                                                            loanTyoe.getInterestRate(),
+                                                            userConsumer,
+                                                            approvedLoansList,
+                                                            newLoan
+                                                    );
+
+                                                    return solicitudeStatusNotifier.notifyLoanEvaluation(message);
+                                                });
+                                    }
+                                    return Mono.empty();
+                                })
+                );
+
+    }
+
+
 }

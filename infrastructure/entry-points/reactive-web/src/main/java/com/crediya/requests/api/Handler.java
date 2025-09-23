@@ -50,6 +50,10 @@ public class Handler {
                 .flatMap(solicitudeValidator::validate)
                 .map(solicitudeCreateMapper::toResponse)
                 .flatMap(solicitudeUseCase::saveSolicitude)
+                .flatMap(saved ->
+                        solicitudeUseCase.processLoanEvaluation(saved)
+                                .thenReturn(saved)
+                )
                 .flatMap(saved -> ServerResponse.status(201)
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(saved));

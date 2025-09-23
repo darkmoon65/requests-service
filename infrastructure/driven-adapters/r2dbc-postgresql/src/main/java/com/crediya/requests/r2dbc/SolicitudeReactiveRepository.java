@@ -1,5 +1,6 @@
 package com.crediya.requests.r2dbc;
 
+import com.crediya.requests.model.solicitude.Solicitude;
 import com.crediya.requests.model.solicitude.dto.SolicitudeWithNamesDto;
 import com.crediya.requests.r2dbc.entity.SolicitudeEntity;
 import org.springframework.data.r2dbc.repository.Query;
@@ -31,4 +32,14 @@ public interface SolicitudeReactiveRepository extends ReactiveCrudRepository<Sol
           AND ( s.state_id = :stateId)
         """)
     Mono<Long> countByStateId(int loanTypeId , int stateId);
+
+
+    @Query("""
+            SELECT s.amount, s.term, lt.interest_rate
+            FROM solicitude s
+            JOIN loan_type lt ON s.loan_type_id = lt.id
+            WHERE s.email = :email
+              AND s.state_id = 2;
+            """)
+    Flux<Solicitude> findAllApprovedLoansByEmail(String email);
 }

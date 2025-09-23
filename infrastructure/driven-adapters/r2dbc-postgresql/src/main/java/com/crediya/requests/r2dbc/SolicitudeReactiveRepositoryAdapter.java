@@ -41,4 +41,9 @@ public class SolicitudeReactiveRepositoryAdapter extends ReactiveAdapterOperatio
     public Mono<Long> countByStateId(int loanTypeId, int stateId) {
         return repository.countByStateId(loanTypeId, stateId);
     }
+
+    @Override
+    public Flux<Solicitude> findAllApprovedLoansByEmail(String email) {
+        return repository.findAllApprovedLoansByEmail(email);
+    }
 }

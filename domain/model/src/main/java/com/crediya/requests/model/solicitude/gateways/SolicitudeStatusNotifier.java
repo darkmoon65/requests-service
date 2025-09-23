@@ -5,4 +5,5 @@ import reactor.core.publisher.Mono;
 
 public interface SolicitudeStatusNotifier {
     Mono<Void> notifyStatusChanged(Solicitude solicitude);
+    Mono<Void> notifyLoanEvaluation(Solicitude solicitude);
 }

@@ -21,4 +21,13 @@ public class LoanTypeReactiveRepositoryAdapter extends ReactiveAdapterOperations
     public Mono<Boolean> existsById(Integer loanTypeId) {
         return super.repository.existsById(loanTypeId);
     }
+
+    @Override
+    public Mono<LoanType> findInterestRateById(Integer loanTypeId) {
+        return super.findById(loanTypeId);
+    }
+    @Override
+    public Mono<Boolean> hasAutomaticValidation(Integer loanTypeId) {
+        return super.repository.hasAutomaticValidation(loanTypeId);
+    }
 }

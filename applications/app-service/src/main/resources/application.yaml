@@ -37,5 +37,17 @@ jwt:
 adapter:
   sqs:
     region: "us-east-2"
-    queueUrl: "https://sqs.us-east-2.amazonaws.com/778826948753/solicitude-status-queue"
     endpoint: ""
+    queueUrls:
+      debtCapacity: "https://sqs.us-east-2.amazonaws.com/778826948753/solicitude-debt-capacity"
+      notifications: "https://sqs.us-east-2.amazonaws.com/778826948753/solicitude-status-queue"
+
+entrypoint:
+  sqs:
+    region: "us-east-2"
+    queueUrl: "https://sqs.us-east-2.amazonaws.com/778826948753/solicitude-endeudamiento-response"
+    endpoint: "https://sqs.us-east-2.amazonaws.com/"
+    waitTimeSeconds: 20
+    maxNumberOfMessages: 10
+    visibilityTimeoutSeconds: 10
+    numberOfThreads: 1
