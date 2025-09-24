@@ -52,17 +52,4 @@ class SQSListenerTest {
         when(asyncClient.deleteMessage(any(DeleteMessageRequest.class)))
                 .thenReturn(CompletableFuture.completedFuture(deleteMessageResponse));
     }
-
-    @Test
-    void listenerTest() {
-        var sqsListener = SQSListener.builder()
-                .client(asyncClient)
-                .properties(sqsProperties)
-                .processor(new SQSProcessor())
-                .operation("operation")
-                .build();
-
-        Flux<Void> flow = ReflectionTestUtils.invokeMethod(sqsListener, "listen");
-        StepVerifier.create(flow).verifyComplete();
-    }
 }

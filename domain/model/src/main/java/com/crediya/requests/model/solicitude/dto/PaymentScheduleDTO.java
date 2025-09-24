@@ -11,8 +11,10 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ApprovedLoanDTO {
-    private BigDecimal amount;
-    private BigDecimal interest_rate;
-    private Integer months;
+public class PaymentScheduleDTO {
+    private Integer month;
+    private BigDecimal monthlyPayment;
+    private BigDecimal interestPayment;
+    private BigDecimal capitalPayment;
+    private BigDecimal remainingBalance;
 }

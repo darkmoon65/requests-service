@@ -6,6 +6,6 @@ import java.util.List;
 public record CalculateDebtMessage (
     BigDecimal interestRate,
     UserConsumer userConsumer,
-    List<LoanDetails> approvedLoans,
+    List<ApprovedLoanDTO> approvedLoans,
     LoanDetails newLoan
 ) {}

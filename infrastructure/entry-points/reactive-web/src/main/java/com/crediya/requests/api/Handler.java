@@ -65,7 +65,7 @@ public class Handler {
                 .doOnNext(dto -> log.info("Received update solicitude: {}", dto))
                 .flatMap(solicitudeValidator::validate)
                 .map(solicitudeCreateMapper::toEntity)
-                .flatMap(solicitudeUseCase::updateSolicitude)
+                .flatMap(solicitudeUseCase::updateSolicitudeManual)
                 .flatMap(saved -> ServerResponse.status(200)
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(saved));

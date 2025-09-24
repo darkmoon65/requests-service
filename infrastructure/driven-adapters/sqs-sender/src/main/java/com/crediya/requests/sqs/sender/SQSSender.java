@@ -1,6 +1,7 @@
 package com.crediya.requests.sqs.sender;
 
 import com.crediya.requests.model.solicitude.Solicitude;
+import com.crediya.requests.model.solicitude.dto.PaymentScheduleDTO;
 import com.crediya.requests.model.solicitude.gateways.SolicitudeStatusNotifier;
 import com.crediya.requests.sqs.sender.config.SQSSenderProperties;
 import com.crediya.requests.model.solicitude.dto.CalculateDebtMessage;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.util.annotation.Nullable;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 import software.amazon.awssdk.services.sqs.model.SendMessageResponse;
@@ -67,24 +69,31 @@ public class SQSSender implements SolicitudeStatusNotifier {
     }
 
     @Override
-    public Mono<Void> notifyLoanEvaluation(Solicitude solicitude) {
+    public Mono<Void> notifyLoanEvaluation(CalculateDebtMessage message) {
         return Mono.fromCallable(() -> {
-                    UserConsumer userConsumer = new UserConsumer(3000.0);
-                    LoanDetails approvedLoan = new LoanDetails(5000.0, 0.01, 12);
-                    List<LoanDetails> approvedLoans = List.of(approvedLoan);
-                    LoanDetails newLoan = new LoanDetails(8000.0, null, 24);
-
-                    CalculateDebtMessage message = new CalculateDebtMessage(
-                            0.12,
-                            userConsumer,
-                            approvedLoans,
-                            newLoan
-                    );
                     return objectMapper.writeValueAsString(message);
                 })
-                .flatMap(msg -> this.send("", msg))
+                .flatMap(msg -> this.send("debtCapacity", msg))
                 .doOnSuccess(msgId -> log.info("Mensaje de evaluación enviado con ID {}", msgId))
                 .doOnError(err -> log.error("Error al enviar mensaje de evaluación", err))
+                .then();
+    }
+
+    @Override
+    public Mono<Void> notifyStatusWithPaymentSchedule(Solicitude solicitude, List<PaymentScheduleDTO> paymentSchedule) {
+        return Mono.fromCallable(() -> {
+                    var message = SolicitudeStatusMessage.builder()
+                            .solicitudeId(solicitude.getId())
+                            .email(solicitude.getEmail())
+                            .statusId(solicitude.getStateId())
+                            .timestamp(java.time.Instant.now().toString())
+                            .paymentSchedule(paymentSchedule)
+                            .build();
+                    return objectMapper.writeValueAsString(message);
+                })
+                .flatMap(msg -> this.send("notifications", msg))
+                .doOnSuccess(msgId -> log.info("Mensaje enviado ID {}", msgId))
+                .doOnError(err -> log.error("Error al enviar mensaje", err))
                 .then();
     }
 }
