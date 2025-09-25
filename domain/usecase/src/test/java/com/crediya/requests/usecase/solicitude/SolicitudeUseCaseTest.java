@@ -1,7 +1,10 @@
 package com.crediya.requests.usecase.solicitude;
 
+import com.crediya.requests.model.loantype.LoanType;
 import com.crediya.requests.model.loantype.gateways.LoanTypeRepository;
 import com.crediya.requests.model.solicitude.Solicitude;
+import com.crediya.requests.model.solicitude.dto.CalculateDebtMessage;
+import com.crediya.requests.model.solicitude.dto.PaymentScheduleDTO;
 import com.crediya.requests.model.solicitude.dto.SolicitudeWithNamesDto;
 import com.crediya.requests.model.solicitude.gateways.SolicitudeRepository;
 import com.crediya.requests.model.solicitude.gateways.SolicitudeStatusNotifier;
@@ -15,6 +18,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -150,7 +154,7 @@ public class SolicitudeUseCaseTest {
         when(solicitudeRepository.saveSolicitude(any(Solicitude.class))).thenReturn(Mono.just(updated));
         when(solicitudeStatusNotifier.notifyStatusChanged(any(Solicitude.class))).thenReturn(Mono.empty());
 
-        StepVerifier.create(solicitudeUseCase.updateSolicitude(updateRequest))
+        StepVerifier.create(solicitudeUseCase.updateSolicitudeManual(updateRequest))
                 .assertNext(saved -> {
                     assertThat(saved.getId()).isEqualTo(1);
                     assertThat(saved.getStateId()).isEqualTo(2);
@@ -166,10 +170,109 @@ public class SolicitudeUseCaseTest {
 
         when(solicitudeRepository.getById(eq(777))).thenReturn(Mono.empty());
 
-        StepVerifier.create(solicitudeUseCase.updateSolicitude(updateRequest))
+        StepVerifier.create(solicitudeUseCase.updateSolicitudeManual(updateRequest))
                 .expectErrorMatches(error ->
                         error instanceof IllegalArgumentException &&
                                 error.getMessage().equals("No existe Solicitud con ese id"))
                 .verify();
     }
+
+    @Test
+    void updateSolicitude_withPaymentSchedule() {
+        Solicitude existing = new Solicitude();
+        existing.setId(1);
+        existing.setStateId(1);
+
+        Solicitude updateRequest = new Solicitude();
+        updateRequest.setId(1);
+        updateRequest.setStateId(2);
+
+        List<PaymentScheduleDTO> schedule = List.of(
+                new PaymentScheduleDTO(1, BigDecimal.valueOf(100), BigDecimal.valueOf(50),
+                        BigDecimal.valueOf(50), BigDecimal.valueOf(500))
+        );
+
+        Solicitude updated = new Solicitude();
+        updated.setId(1);
+        updated.setStateId(2);
+
+        when(solicitudeRepository.getById(eq(1))).thenReturn(Mono.just(existing));
+        when(solicitudeRepository.saveSolicitude(any(Solicitude.class))).thenReturn(Mono.just(updated));
+        when(solicitudeStatusNotifier.notifyStatusWithPaymentSchedule(eq(updated), eq(schedule))).thenReturn(Mono.empty());
+
+        StepVerifier.create(solicitudeUseCase.updateSolicitude(updateRequest, schedule))
+                .assertNext(saved -> {
+                    assertThat(saved.getId()).isEqualTo(1);
+                    assertThat(saved.getStateId()).isEqualTo(2);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void updateSolicitude_withoutPaymentSchedule() {
+        Solicitude existing = new Solicitude();
+        existing.setId(1);
+        existing.setStateId(1);
+
+        Solicitude updateRequest = new Solicitude();
+        updateRequest.setId(1);
+        updateRequest.setStateId(3);
+
+        Solicitude updated = new Solicitude();
+        updated.setId(1);
+        updated.setStateId(3);
+
+        when(solicitudeRepository.getById(eq(1))).thenReturn(Mono.just(existing));
+        when(solicitudeRepository.saveSolicitude(any(Solicitude.class))).thenReturn(Mono.just(updated));
+        when(solicitudeStatusNotifier.notifyStatusChanged(eq(updated))).thenReturn(Mono.empty());
+
+        StepVerifier.create(solicitudeUseCase.updateSolicitude(updateRequest, null))
+                .assertNext(saved -> {
+                    assertThat(saved.getId()).isEqualTo(1);
+                    assertThat(saved.getStateId()).isEqualTo(3);
+                })
+                .verifyComplete();
+    }
+
+
+    @Test
+    void processLoanEvaluation_withAutomaticValidation() {
+        Solicitude solicitude = new Solicitude();
+        solicitude.setId(1);
+        solicitude.setLoanTypeId(2);
+        solicitude.setAmount(BigDecimal.valueOf(1000));
+        solicitude.setTerm(12);
+        solicitude.setEmail("test@example.com");
+
+        LoanType loanTypeDto = new LoanType();
+        loanTypeDto.setInterestRate(BigDecimal.valueOf(16.0));
+
+        when(loanTypeRepository.findInterestRateById(eq(2))).thenReturn(Mono.just(loanTypeDto));
+        when(loanTypeRepository.hasAutomaticValidation(eq(2))).thenReturn(Mono.just(true));
+        when(solicitudeRepository.findAllApprovedLoansByEmail(eq("test@example.com"))).thenReturn(Flux.empty());
+        when(solicitudeStatusNotifier.notifyLoanEvaluation(any(CalculateDebtMessage.class))).thenReturn(Mono.empty());
+
+        StepVerifier.create(solicitudeUseCase.processLoanEvaluation(solicitude))
+                .verifyComplete();
+    }
+
+    @Test
+    void processLoanEvaluation_withoutAutomaticValidation() {
+        Solicitude solicitude = new Solicitude();
+        solicitude.setId(1);
+        solicitude.setLoanTypeId(2);
+        solicitude.setAmount(BigDecimal.valueOf(1000));
+        solicitude.setTerm(12);
+        solicitude.setEmail("test@example.com");
+
+        LoanType loanTypeDto = new LoanType();
+        loanTypeDto.setInterestRate(BigDecimal.valueOf(16.0));
+
+        when(loanTypeRepository.findInterestRateById(eq(2))).thenReturn(Mono.just(loanTypeDto));
+        when(loanTypeRepository.hasAutomaticValidation(eq(2))).thenReturn(Mono.just(false));
+
+        StepVerifier.create(solicitudeUseCase.processLoanEvaluation(solicitude))
+                .verifyComplete();
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.crediya.requests.model.solicitude.gateways;
 
 import com.crediya.requests.model.solicitude.Solicitude;
+import com.crediya.requests.model.solicitude.dto.ApprovedLoanDTO;
 import com.crediya.requests.model.solicitude.dto.SolicitudeWithNamesDto;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -13,4 +14,6 @@ public interface SolicitudeRepository {
     Mono<Long> countByStateId(int loanTypeId, int stateId);
 
     Mono<Solicitude> getById(Integer id);
+
+    Flux<ApprovedLoanDTO> findAllApprovedLoansByEmail(String email);
 }

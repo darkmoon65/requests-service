@@ -50,6 +50,10 @@ public class Handler {
                 .flatMap(solicitudeValidator::validate)
                 .map(solicitudeCreateMapper::toResponse)
                 .flatMap(solicitudeUseCase::saveSolicitude)
+                .flatMap(saved ->
+                        solicitudeUseCase.processLoanEvaluation(saved)
+                                .thenReturn(saved)
+                )
                 .flatMap(saved -> ServerResponse.status(201)
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(saved));
@@ -61,7 +65,7 @@ public class Handler {
                 .doOnNext(dto -> log.info("Received update solicitude: {}", dto))
                 .flatMap(solicitudeValidator::validate)
                 .map(solicitudeCreateMapper::toEntity)
-                .flatMap(solicitudeUseCase::updateSolicitude)
+                .flatMap(solicitudeUseCase::updateSolicitudeManual)
                 .flatMap(saved -> ServerResponse.status(200)
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(saved));

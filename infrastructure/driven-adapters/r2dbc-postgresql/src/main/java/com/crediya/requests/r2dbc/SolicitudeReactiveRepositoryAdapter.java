@@ -1,6 +1,7 @@
 package com.crediya.requests.r2dbc;
 
 import com.crediya.requests.model.solicitude.Solicitude;
+import com.crediya.requests.model.solicitude.dto.ApprovedLoanDTO;
 import com.crediya.requests.model.solicitude.dto.SolicitudeWithNamesDto;
 import com.crediya.requests.model.solicitude.gateways.SolicitudeRepository;
 import com.crediya.requests.r2dbc.entity.SolicitudeEntity;
@@ -40,5 +41,10 @@ public class SolicitudeReactiveRepositoryAdapter extends ReactiveAdapterOperatio
     @Override
     public Mono<Long> countByStateId(int loanTypeId, int stateId) {
         return repository.countByStateId(loanTypeId, stateId);
+    }
+
+    @Override
+    public Flux<ApprovedLoanDTO> findAllApprovedLoansByEmail(String email) {
+        return repository.findAllApprovedLoansByEmail(email);
     }
 }
